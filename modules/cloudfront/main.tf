@@ -12,14 +12,13 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   enabled = true
 
   # Define the S3 bucket as the origin
- origin {
-  domain_name = var.s3_bucket_domain_name
-  origin_id   = var.origin_id
+  origin {
+    domain_name = var.s3_bucket_domain_name
+    origin_id   = var.origin_id
 
-  # Use the Origin Access Control (OAC)
-  origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
-}
-
+    # Use the Origin Access Control (OAC)
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
+  }
 
   # Default cache behavior
   default_cache_behavior {

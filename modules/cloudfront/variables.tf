@@ -4,6 +4,7 @@ variable "s3_bucket_domain_name" {
   type        = string
 }
 
+
 # Input variable for the CloudFront origin ID
 variable "origin_id" {
   description = "Unique identifier for the CloudFront origin"
