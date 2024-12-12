@@ -1,14 +1,14 @@
 output "bucket_name" {
-  description = "The name of the S3 bucket."
-  value       = aws_s3_bucket.bucket.id
+  description = "The name of the S3 bucket"
+  value       = aws_s3_bucket.frontend.id # Corrected resource name
 }
 
 output "bucket_arn" {
-  description = "The ARN of the S3 bucket."
-  value       = aws_s3_bucket.bucket.arn
+  description = "The ARN of the S3 bucket"
+  value       = aws_s3_bucket.frontend.arn # Corrected resource name
 }
 
-output "oai_id" {
-  description = "The ID of the CloudFront Origin Access Identity."
-  value       = aws_cloudfront_origin_access_identity.oai.id
+output "bucket_regional_domain_name" {
+  description = "The regional domain name of the S3 bucket"
+  value       = aws_s3_bucket.frontend.bucket_regional_domain_name
 }
