@@ -18,12 +18,13 @@ module "cloudfront" {
 #   source = "./modules/dynamodb"
 # }
 
-# module "cognito" {
-#   source                = "./modules/cognito"
-#   user_pool_name        = var.cognito_user_pool_name
-#   username              = var.username
-#   user_email            = var.user_email
-# }
+module "cognito" {
+  source           = "./modules/cognito" # Path to the Cognito module
+  user_pool_name   = var.user_pool_name
+  username         = var.username
+  user_email       = var.user_email
+  environment      = var.environment
+}
 
 # module "api_gateway" {
 #   source = "./modules/api_gateway"
