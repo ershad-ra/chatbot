@@ -70,5 +70,4 @@ module "lex" {
   source      = "./modules/lex"
   environment = var.environment
   lex_bot_name = "MeetyBot"
-  dynamodb_table_name = module.dynamodb.table_name
 }
