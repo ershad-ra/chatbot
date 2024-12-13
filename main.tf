@@ -14,30 +14,61 @@ module "cloudfront" {
 }
 
 
-# module "dynamodb" {
-#   source = "./modules/dynamodb"
-# }
+module "apigateway" {
+  source                           = "./modules/apigateway"
+  api_name                         = "chatbot-api"
+  api_description                  = "API for Chatbot Application"
+  cors_allow_origins               = ["*"]
+  cors_allow_methods               = ["GET", "POST", "PUT", "DELETE"]
+  cors_allow_headers               = ["*"]
+  stage_name                       = "dev"
+  cognito_user_pool_client_id      = module.cognito.user_pool_client_id
+  cognito_user_pool_issuer         = "https://cognito-idp.${var.region}.amazonaws.com/${module.cognito.user_pool_id}"
+  lambda_function_get_meetings_arn = module.lambda.get_meetings_function_arn
+  lambda_function_get_pending_meetings_arn = module.lambda.get_pending_meetings_function_arn
+  lambda_function_chatbot_arn      = module.lambda.chatbot_function_arn
+  change_meeting_status_function_arn = module.lambda.change_meeting_status_function_arn
 
-module "cognito" {
-  source           = "./modules/cognito" # Path to the Cognito module
-  user_pool_name   = var.user_pool_name
-  username         = var.username
-  user_email       = var.user_email
-  environment      = var.environment
 }
 
-# module "api_gateway" {
-#   source = "./modules/api_gateway"
-#   api_name = var.api_name
-#   cognito_user_pool_arn = module.cognito.user_pool_arn
-# }
 
-# module "lambda" {
-#   source = "./modules/lambda"
-#   api_gateway_arn = module.api_gateway.api_arn
-#   dynamodb_arn    = module.dynamodb.table_arn
-# }
+module "cognito" {
+  source                       = "./modules/cognito"
+  user_pool_name               = var.user_pool_name
+  username                     = var.username
+  user_email                   = var.user_email
+  environment                  = var.environment
+  api_id                       = module.apigateway.api_id # Pass API Gateway ID
+  region                       = var.region # Pass AWS region
+}
 
-# module "lex" {
-#   source = "./modules/lex"
-# }
+module "lambda" {
+  source               = "./modules/lambda"
+  environment          = var.environment
+  dynamodb_table_name  = module.dynamodb.table_name
+  dynamodb_table_arn   = module.dynamodb.table_arn
+  get_meetings_execution_role_arn = module.iam.get_meetings_execution_role_arn
+  chatbot_execution_role_arn = module.iam.chatbot_execution_role_arn
+  get_pending_meetings_execution_role_arn = module.iam.get_pending_meetings_execution_role_arn
+  change_meeting_status_execution_role_arn = module.iam.change_meeting_status_execution_role_arn
+  create_meeting_execution_role_arn = module.iam.create_meeting_execution_role_arn
+}
+
+module "dynamodb" {
+  source      = "./modules/dynamodb"
+  table_name  = "Meetings"
+  environment = var.environment
+}
+
+module "iam" {
+  source = "./modules/iam"
+  environment = var.environment
+  dynamodb_table_arn   = module.dynamodb.table_arn
+}
+
+module "lex" {
+  source      = "./modules/lex"
+  environment = var.environment
+  lex_bot_name = "MeetyBot"
+  dynamodb_table_name = module.dynamodb.table_name
+}

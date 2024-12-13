@@ -45,3 +45,19 @@ variable "environment" {
   description = "The environment for tagging resources"
   type        = string
 }
+
+# AWS Region
+variable "region" {
+  description = "The AWS region for resources"
+  type        = string
+}
+
+variable "lex_bot_name" {
+  description = "Name of the Lex bot"
+  type        = string
+}
+
+variable "dynamodb_table_name" {
+  description = "Name of the DynamoDB table for meetings"
+  type        = string
+}

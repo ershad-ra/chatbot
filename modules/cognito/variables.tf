@@ -21,3 +21,13 @@ variable "environment" {
   description = "Environment for tagging (e.g., dev, prod)"
   type        = string
 }
+
+variable "api_id" {
+  description = "The ID of the API Gateway to which the JWT Authorizer is attached"
+  type        = string
+}
+
+variable "region" {
+  description = "The AWS region where the Cognito resources are deployed"
+  type        = string
+}
