@@ -71,8 +71,6 @@ resource "aws_apigatewayv2_route" "chatbot_route" {
   api_id    = aws_apigatewayv2_api.http_api.id
   route_key = "POST /chatbot"
   target    = "integrations/${aws_apigatewayv2_integration.chatbot_integration.id}"
-  authorization_type = "JWT"
-  authorizer_id      = aws_apigatewayv2_authorizer.jwt_authorizer.id
 }
 
 # Example Integration: Chatbot
@@ -89,7 +87,8 @@ resource "aws_apigatewayv2_route" "put_status_route" {
   api_id     = aws_apigatewayv2_api.http_api.id
   route_key  = "PUT /status"
   target     = "integrations/${aws_apigatewayv2_integration.change_meeting_status_integration.id}"
-  authorizer_id = aws_apigatewayv2_authorizer.jwt_authorizer.id
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.jwt_authorizer.id
 }
 
 

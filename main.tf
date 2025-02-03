@@ -52,6 +52,7 @@ module "lambda" {
   get_pending_meetings_execution_role_arn = module.iam.get_pending_meetings_execution_role_arn
   change_meeting_status_execution_role_arn = module.iam.change_meeting_status_execution_role_arn
   create_meeting_execution_role_arn = module.iam.create_meeting_execution_role_arn
+  api_gateway_execution_arn = module.apigateway.execution_arn
 }
 
 module "dynamodb" {
@@ -72,11 +73,11 @@ module "lex" {
   lex_bot_name = "MeetyBot"
 }
 
-# Exécution automatique du script après la création des ressources
-resource "null_resource" "frontend_setup" {
-  provisioner "local-exec" {
-    command = "bash ./modules/website/setup_frontend.sh"
-  }
+# # Exécution automatique du script après la création des ressources
+# resource "null_resource" "frontend_setup" {
+#   provisioner "local-exec" {
+#     command = "bash ./modules/website/setup_frontend.sh"
+#   }
 
-  depends_on = [module.s3, module.cognito, module.apigateway]
-}
+#   depends_on = [module.s3, module.cognito, module.apigateway]
+# }

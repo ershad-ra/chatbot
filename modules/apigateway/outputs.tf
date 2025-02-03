@@ -15,3 +15,8 @@ output "api_base_url" {
   description = "The base URL of the API Gateway"
   value       = aws_apigatewayv2_stage.http_api_stage.invoke_url
 }
+
+
+output "execution_arn" {
+  value = aws_apigatewayv2_api.http_api.execution_arn
+}

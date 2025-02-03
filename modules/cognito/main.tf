@@ -83,17 +83,3 @@ resource "aws_cognito_user" "user" {
   # Set delivery medium
   desired_delivery_mediums = ["EMAIL"]
 }
-
-# # JWT Authorizer for API Gateway
-# resource "aws_apigatewayv2_authorizer" "jwt_authorizer" {
-#   api_id        = var.api_id # Pass API Gateway ID
-#   authorizer_type = "JWT"
-#   name          = "CognitoJWTAuthorizer"
-
-#   identity_sources = ["$request.header.Authorization"]
-
-#   jwt_configuration {
-#     audience = [aws_cognito_user_pool_client.user_pool_client.id]
-#     issuer   = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.user_pool.id}"
-#   }
-# }
