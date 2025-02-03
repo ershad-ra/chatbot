@@ -71,3 +71,12 @@ module "lex" {
   environment = var.environment
   lex_bot_name = "MeetyBot"
 }
+
+# Exécution automatique du script après la création des ressources
+resource "null_resource" "frontend_setup" {
+  provisioner "local-exec" {
+    command = "bash ./modules/website/setup_frontend.sh"
+  }
+
+  depends_on = [module.s3, module.cognito, module.apigateway]
+}
