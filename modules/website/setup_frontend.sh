@@ -31,7 +31,7 @@ mkdir -p $CONFIGS_DIR
 
 # 4️⃣ Récupérer les outputs de Terraform
 API_URL=$(terraform output -raw api_url)
-CLIENT_ID=$(terraform output -raw client_id)
+CLIENT_ID=$(terraform output -raw user_pool_client_id)
 USER_POOL_ID=$(terraform output -raw user_pool_id)
 BUCKET_NAME=$(terraform output -raw bucket_name)
 
