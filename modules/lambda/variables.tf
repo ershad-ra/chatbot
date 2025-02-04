@@ -43,3 +43,9 @@ variable "api_gateway_execution_arn" {
   description = "Execution ARN of the API Gateway"
   type        = string
 }
+
+
+variable "lex_bot_id" {
+  description = "The Lex Bot ID"
+  type        = string
+}

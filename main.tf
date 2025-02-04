@@ -53,7 +53,9 @@ module "lambda" {
   change_meeting_status_execution_role_arn = module.iam.change_meeting_status_execution_role_arn
   create_meeting_execution_role_arn = module.iam.create_meeting_execution_role_arn
   api_gateway_execution_arn = module.apigateway.execution_arn
+  lex_bot_id      = module.lex.lex_bot_id
 }
+
 
 module "dynamodb" {
   source      = "./modules/dynamodb"

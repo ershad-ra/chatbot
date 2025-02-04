@@ -109,28 +109,7 @@ resource "aws_lexv2models_intent" "book_meeting_intent" {
   name                   = "BookMeeting"
   description            = "Book a meeting"
   locale_id              = aws_lexv2models_bot_locale.en_us_locale.locale_id
-  # # Priority of the slots
-  # slot_priority {
-  #   priority = 1
-  #   slot_id = "FullName"
-  # }
-  # slot_priority {
-  #   priority = 2
-  #   slot_id = "MeetingDate"
-  # }
-  # slot_priority {
-  #   priority = 3
-  #   slot_id = "MeetingTime"
-  # }
-  # slot_priority {
-  #   priority = 4
-  #   slot_id = "MeetingDuration"
-  # }
-  # slot_priority {
-  #   priority = 5
-  #   slot_id = "AttendeeEmail"
-  # }
-  # Provide each utterance as a separate block
+
   confirmation_setting {
     active = true
     prompt_specification {
@@ -352,37 +331,3 @@ resource "aws_lexv2models_slot" "attendee_email" {
   }
 }
 
-
-
-resource "aws_lexv2models_intent" "fallback_intent" {
-  bot_id      = aws_lexv2models_bot.meety_bot.id
-  bot_version = aws_lexv2models_bot_locale.en_us_locale.bot_version
-  locale_id   = aws_lexv2models_bot_locale.en_us_locale.locale_id
-  name        = "FallbackIntent"
-  description = "Default intent when no other intent matches OK?"
-  parent_intent_signature = "AMAZON.FallbackIntent"
-
-  closing_setting {
-    active = true
-    closing_response {
-      message_group {
-        message {
-          plain_text_message {
-            value = "Sorry, I did not get it. I am an expert in scheduling meetings. Do you need help with that?"
-          }
-        }
-      }
-    }
-  }
-}
-
-
-
-
-# # Define Bot Alias
-# resource "aws_lexv2models_bot_alias" "meety_bot_alias" {
-#   bot_id       = aws_lexv2models_
-#   name         = "TestAlias"
-#   description  = "Alias for testing Meety bot"
-#   bot_version  = "DRAFT"
-# }

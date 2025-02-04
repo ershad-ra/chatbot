@@ -1,112 +1,66 @@
-# Lambda Function for Get Meetings
-resource "aws_lambda_function" "get_meetings_function" {
-  function_name = "${var.environment}-get-meetings"
-  role          = var.get_meetings_execution_role_arn
-  handler       = "index.lambda_handler"
-  runtime       = "python3.12"
-
-  source_code_hash = filebase64sha256("${path.module}/code/get_meetings.zip")
-  filename         = "${path.module}/code/get_meetings.zip"
-
-  environment {
-    variables = {
-      DYNAMODB_TABLE = var.dynamodb_table_name
-    }
+locals {
+  lambda_functions = {
+    get_meetings          = var.get_meetings_execution_role_arn
+    chatbot               = var.chatbot_execution_role_arn
+    get_pending_meetings  = var.get_pending_meetings_execution_role_arn
+    change_meeting_status = var.change_meeting_status_execution_role_arn
+    create_meeting        = var.create_meeting_execution_role_arn
   }
 }
 
-# Lambda Function for Chatbot
-resource "aws_lambda_function" "chatbot_function" {
-  function_name = "${var.environment}-chatbot"
-  role          = var.chatbot_execution_role_arn
-  handler       = "index.lambda_handler"
-  runtime       = "python3.12"
+# Create a ZIP archive for each Lambda function.
+# Each archive will contain a file called "index.py" whose content is taken
+# from the corresponding Python source file.
+data "archive_file" "lambda_zips" {
+  for_each = local.lambda_functions
 
-  source_code_hash = filebase64sha256("${path.module}/code/chatbot.zip")
-  filename         = "${path.module}/code/chatbot.zip"
+  type = "zip"
+
+  # The "source" block allows you to specify content and the filename inside the archive.
+  source {
+    content  = file("${path.module}/code/${each.key}.py")
+    filename = "index.py"
+  }
+
+  # This writes the ZIP file to disk. The file will be named exactly like the .py file,
+  # e.g. "chatbot.zip", "get_meetings.zip", etc.
+  output_path = "${path.module}/code/${each.key}.zip"
 }
 
-# Lambda Function for Get Pending Meetings
-resource "aws_lambda_function" "get_pending_meetings_function" {
-  function_name = "${var.environment}-get-pending-meetings"
-  role          = var.get_pending_meetings_execution_role_arn
+# Lambda Function resource using the ZIP files created above.
+resource "aws_lambda_function" "lambda_functions" {
+  for_each = local.lambda_functions
+
+  function_name = "${var.environment}-${each.key}"
+  role          = each.value
   handler       = "index.lambda_handler"
   runtime       = "python3.12"
 
-  source_code_hash = filebase64sha256("${path.module}/code/get_pending_meetings.zip")
-  filename         = "${path.module}/code/get_pending_meetings.zip"
+  source_code_hash = data.archive_file.lambda_zips[each.key].output_base64sha256
+  filename         = data.archive_file.lambda_zips[each.key].output_path
 
   environment {
-    variables = {
-      DYNAMODB_TABLE = var.dynamodb_table_name
-    }
+    variables = merge(
+      {
+        DYNAMODB_TABLE = var.dynamodb_table_name
+      },
+      each.key == "chatbot" ? {
+        LEX_BOT_ID       = var.lex_bot_id,   # Pass lex_bot_id from Lex module if desired
+        LEX_BOT_ALIAS_ID = "TSTALIASID"      # Hardcoded alias for testing
+      } : {}
+    )
   }
-}
 
-# Lambda Function for Change Meeting Status
-resource "aws_lambda_function" "change_meeting_status_function" {
-  function_name = "${var.environment}-change-meeting-status"
-  role          = var.change_meeting_status_execution_role_arn
-  handler       = "index.lambda_handler"
-  runtime       = "python3.12"
-
-  source_code_hash = filebase64sha256("${path.module}/code/change_meeting_status.zip")
-  filename         = "${path.module}/code/change_meeting_status.zip"
-
-  environment {
-    variables = {
-      DYNAMODB_TABLE = var.dynamodb_table_name
-    }
-  }
-}
-
-# Lambda Function for Create Meeting
-resource "aws_lambda_function" "create_meeting_function" {
-  function_name = "${var.environment}-create-meeting"
-  role          = var.create_meeting_execution_role_arn
-  handler       = "index.lambda_handler"
-  runtime       = "python3.12"
-
-  source_code_hash = filebase64sha256("${path.module}/code/create_meeting.zip")
-  filename         = "${path.module}/code/create_meeting.zip"
-
-  environment {
-    variables = {
-      DYNAMODB_TABLE = var.dynamodb_table_name
-    }
-  }
+  depends_on = [data.archive_file.lambda_zips]
 }
 
 
+# Grant API Gateway permission to invoke the Lambda functions.
+resource "aws_lambda_permission" "lambda_permissions" {
+  for_each = aws_lambda_function.lambda_functions
 
-resource "aws_lambda_permission" "get_meetings_permission" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+  statement_id  = "AllowAPIGatewayInvoke-${each.key}"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.get_meetings_function.function_name
+  function_name = each.value.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.api_gateway_execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "get_pending_meetings_permission" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.get_pending_meetings_function.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.api_gateway_execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "chatbot_permission" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.chatbot_function.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.api_gateway_execution_arn}/*/*"
-}
-
-resource "aws_lambda_permission" "change_meeting_status_permission" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.change_meeting_status_function.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${var.api_gateway_execution_arn}/*/*"
 }

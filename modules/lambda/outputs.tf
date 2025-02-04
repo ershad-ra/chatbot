@@ -1,25 +1,20 @@
 # Outputs for Lambda Function ARNs
 output "get_meetings_function_arn" {
-  description = "ARN of the Lambda function for GET /meetings"
-  value       = aws_lambda_function.get_meetings_function.arn
+  value = aws_lambda_function.lambda_functions["get_meetings"].arn
 }
 
 output "get_pending_meetings_function_arn" {
-  description = "ARN of the Lambda function for GET /pending"
-  value       = aws_lambda_function.get_pending_meetings_function.arn
+  value = aws_lambda_function.lambda_functions["get_pending_meetings"].arn
 }
 
 output "chatbot_function_arn" {
-  description = "ARN of the Lambda function for POST /chatbot"
-  value       = aws_lambda_function.chatbot_function.arn
+  value = aws_lambda_function.lambda_functions["chatbot"].arn
 }
 
 output "change_meeting_status_function_arn" {
-  description = "ARN of the Lambda function for PUT /status"
-  value       = aws_lambda_function.change_meeting_status_function.arn
+  value = aws_lambda_function.lambda_functions["change_meeting_status"].arn
 }
 
 output "create_meeting_function_arn" {
-  description = "ARN of the Lambda function for POST /meetings"
-  value       = aws_lambda_function.create_meeting_function.arn
+  value = aws_lambda_function.lambda_functions["create_meeting"].arn
 }
