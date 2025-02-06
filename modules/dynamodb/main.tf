@@ -1,30 +1,35 @@
-resource "aws_dynamodb_table" "this" {
-  name         = var.table_name
-  billing_mode = var.billing_mode
+# Create DynamoDB Table for Meetings
+resource "aws_dynamodb_table" "meetings" {
+  name           = var.table_name
+  billing_mode   = "PAY_PER_REQUEST" # Matches CloudFormation's PAY_PER_REQUEST mode
+  hash_key       = "meetingId"
 
-  # Clé primaire
-  hash_key = var.hash_key
-
-  # Définir les attributs
-  dynamic "attribute" {
-    for_each = var.attributes
-    content {
-      name = attribute.value.name
-      type = attribute.value.type
-    }
+  attribute {
+    name = "meetingId"
+    type = "S"
   }
 
-  # Index secondaires globaux
-  dynamic "global_secondary_index" {
-    for_each = var.global_secondary_indexes
-    content {
-      name            = global_secondary_index.value.name
-      hash_key        = global_secondary_index.value.hash_key
-      range_key       = global_secondary_index.value.range_key
-      projection_type = global_secondary_index.value.projection_type
-    }
+  # Add attributes for the Global Secondary Index (GSI)
+  attribute {
+    name = "status"
+    type = "S"
   }
 
-  # Protection contre la suppression
-  deletion_protection_enabled = var.deletion_protection
+  attribute {
+    name = "date"
+    type = "S"
+  }
+
+  # Define the Global Secondary Index
+  global_secondary_index {
+    name            = "StatusIndex"
+    hash_key        = "status"
+    range_key       = "date"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    Environment = var.environment
+    Name        = var.table_name
+  }
 }
